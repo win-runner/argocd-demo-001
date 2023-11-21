@@ -1,0 +1,54 @@
+#
+# Needs a route specified within the ingress network with virtual appliance set to the lb IP
+#
+nodeSelector:
+  agentpool: system
+tolerations:
+  - key: CriticalAddonsOnly
+    operator: Exists
+deployment:
+  enabled: true
+  replicas: 3
+  annotations: {}
+  podAnnotations: {}
+  additionalContainers: []
+  initContainers: []
+api:
+  dashboard: true
+  insecure: true
+ingressRoute:
+  dashboard:
+    annotations: {}
+    enabled: true
+    insecure: true
+    labels: {}
+ports:
+  traefik:
+    expose: false
+    exposedPort: 9000
+    port: 9000
+    protocol: TCP
+  web:
+    redirectTo: websecure
+    expose: true
+    exposedPort: 80
+    port: 8000
+    protocol: TCP
+  websecure:
+    expose: true
+    exposedPort: 443
+    port: 8443
+    protocol: TCP
+    tls:
+      certResolver: ""
+      domains: []
+      enabled: true
+      options: ""
+service:
+  enabled: true
+  type: LoadBalancer
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+    service.beta.kubernetes.io/azure-pls-create: "true"
+    service.beta.kubernetes.io/azure-pls-name: "pls-aks-dev-ingress"
+    service.beta.kubernetes.io/azure-pls-ip-configuration-subnet: snet-SystemNodes-Dev
